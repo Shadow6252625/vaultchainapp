@@ -83,13 +83,14 @@ export function AnimatedVaultLock() {
             }}
           >
             <Image
-              src="/vaultchain-logo.png"
+              src="/vaultchain-logo.svg"
               alt="VaultChain"
               width={180}
               height={180}
               priority
               className="drop-shadow-[0_0_30px_rgba(0,225,255,0.25)]"
             />
+
           </motion.div>
         </div>
       </motion.div>

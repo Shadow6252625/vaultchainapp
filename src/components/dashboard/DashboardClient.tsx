@@ -1,11 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, lazy, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { SecurityGraph } from "@/components/dashboard/SecurityGraph";
 import type { DashboardResponse } from "@/lib/vaultchain-types";
+
+// Dynamically import heavy chart component
+const SecurityGraph = lazy(() => import("@/components/dashboard/SecurityGraph").then(mod => ({ default: mod.SecurityGraph })));
+
 
 type ActionStatus =
   | { kind: "idle" }
@@ -252,15 +255,21 @@ export function DashboardClient({
                   variants={item}
                   className="vc-card rounded-[3rem] p-8 lg:col-span-2 relative overflow-hidden group"
                 >
-                  {/* Section Background Video */}
+                  {/* Section Background Video - Optimized */}
                   <div className="absolute inset-0 -z-10 bg-[#0b0c10]">
                     <video
                       autoPlay
                       loop
                       muted
                       playsInline
+                      preload="none"
+                      poster="/trust-poster.png"
                       className="h-full w-full object-cover opacity-60 mix-blend-screen"
-                      style={{ filter: "brightness(0.6) contrast(1.1)" }}
+                      style={{
+                        filter: "brightness(0.6) contrast(1.1)",
+                        willChange: "transform"
+                      }}
+                      onMouseOver={(e) => e.currentTarget.play()} // Play on interaction if preload none
                     >
                       <source src="/trust-propagation-bg.mp4" type="video/mp4" />
                     </video>
@@ -280,7 +289,13 @@ export function DashboardClient({
                     </div>
                   </div>
                   <div className="relative z-10">
-                    <SecurityGraph data={data.security} />
+                    <Suspense fallback={
+                      <div className="h-60 w-full flex items-center justify-center bg-white/5 rounded-2xl animate-pulse">
+                        <div className="text-white/20 text-xs font-mono uppercase tracking-widest">Initialising Audit Visualization...</div>
+                      </div>
+                    }>
+                      <SecurityGraph data={data.security} />
+                    </Suspense>
                   </div>
                 </motion.section>
 
